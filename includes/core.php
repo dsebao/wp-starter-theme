@@ -1,6 +1,8 @@
 <?php
 
-/* Add jQuery */
+/* 
+    Add jQuery
+*/
 function agregar_js() {
 	if (!is_admin()) {
 		wp_deregister_script('jquery');
@@ -11,7 +13,9 @@ function agregar_js() {
 add_action('wp_enqueue_scripts', 'agregar_js');
 
 
-/* Enqueue Scripts */
+/* 
+    Enqueue Scripts
+*/
 function foot_js(){
         echo '
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
@@ -20,7 +24,9 @@ function foot_js(){
 add_action('wp_footer', 'foot_js'); 
 
 
-/* fix for browsers */
+/* 
+    fix for browsers
+*/
 function wpfme_IEhtml5_shim () {
     global $is_IE;
     if ($is_IE)
@@ -30,7 +36,20 @@ function wpfme_IEhtml5_shim () {
 add_action('wp_head', 'wpfme_IEhtml5_shim');
 
 
-/* Cleaner Dashboard */
+/*
+    Hide WordPress Update Nag to All But Admins
+*/
+function hide_update_notice_to_all_but_admin() {
+    if ( !current_user_can( 'update_core' ) ) {
+        remove_action( 'admin_notices', 'update_nag', 3 );
+    }
+}
+add_action( 'admin_head', 'hide_update_notice_to_all_but_admin', 1 );
+
+
+/* 
+    Cleaner Dashboard
+*/
 function disable_default_dashboard_widgets() {
 	remove_meta_box('dashboard_recent_comments', 'dashboard', 'core');
 	remove_meta_box('dashboard_incoming_links', 'dashboard', 'core');
@@ -44,11 +63,15 @@ function disable_default_dashboard_widgets() {
 add_action('admin_menu', 'disable_default_dashboard_widgets');
 
 
-/* Remove wp tag in header */  
+/* 
+    Remove wp tag in header *
+
 remove_action('wp_head', 'wp_generator');
 
 
-/* Remove links in menu */
+/* 
+    Remove links in menu
+*/
 function remove_menus () {
     global $menu;
 	$restricted = array(
@@ -63,7 +86,9 @@ function remove_menus () {
 add_action('admin_menu', 'remove_menus');
 
 
-/* Custom Excerpt */
+/* 
+    Custom Excerpt
+*/
 class Excerpt {
     public static $length = 55;// Default length (by WordPress)
     public static $types = array(// So you can call: my_excerpt('short');
@@ -130,7 +155,9 @@ function posts_custom_column_views($column_name, $id){
 }
 
 
-/* Pagination Boostrap */
+/* 
+    Pagination Boostrap
+*/
 function wp_bootstrap_pagination( $args = array() ) {
     $defaults = array(
         'range'           => 4,
@@ -210,7 +237,9 @@ function wp_bootstrap_pagination( $args = array() ) {
 
 
 
-/* Remove pages from search*/
+/* 
+    Remove pages from searc
+*/
 function remove_pages_from_search() {
     global $wp_post_types;
     $wp_post_types['page']->exclude_from_search = true;
@@ -218,7 +247,9 @@ function remove_pages_from_search() {
 add_action('init', 'remove_pages_from_search');
 
 
-/* Force medium size image to crop */
+/* 
+    Force medium size image to crop
+*/
 if(false === get_option('medium_crop')) {
     add_option('medium_crop', '1');
 } else {
@@ -226,7 +257,9 @@ if(false === get_option('medium_crop')) {
 }
 
 
-/* Funtion to call images in a post */
+/* 
+    Funtion to call images in a post
+*/
 function my_image($postid=0, $size='thumbnail') { //it can be thumbnail or full
     if ($postid<1){
         $postid = get_the_ID();
@@ -257,12 +290,16 @@ function my_image($postid=0, $size='thumbnail') { //it can be thumbnail or full
 }
 
 
-/* Add image sizes and post thumbnail */
+/* 
+    Add image sizes and post thumbnail
+*/
 add_theme_support('post-thumbnails', array('post','page'));
 //add_image_size('customsize', 650, 260, true);
 
 
-/* Add images in feed rss */
+/* 
+    Add images in feed rss
+*/
 function rss_add_enclosure() {
     global $post;
     if( has_post_thumbnail() ) {
@@ -275,7 +312,9 @@ add_action('rss_item',  'rss_add_enclosure');
 add_action('rss2_item', 'rss_add_enclosure');
 
 
-/* Remove wordpress in mail subject */
+/* 
+    Remove wordpress in mail subject
+*/
 function res_fromname($email){
     $wpfrom = get_option('blogname');
     return $wpfrom;
@@ -286,7 +325,9 @@ add_filter('wp_mail_from_name', 'res_fromname');
 
 
 
-/* Custom nav menus*/
+/* 
+    Custom nav menu
+*/
 function register_my_menus() {
   register_nav_menus(
     array(
@@ -297,7 +338,9 @@ function register_my_menus() {
 add_theme_support( 'menus' );
 add_action( 'init', 'register_my_menus' );
 
-/* remove wordpress logo and menu admin bar */
+/* 
+    remove wordpress logo and menu admin bar
+*/
 function remove_admin_bar_links() {
     global $wp_admin_bar;
     $wp_admin_bar->remove_menu('wp-logo');          // Remove the WordPress logo
@@ -311,7 +354,9 @@ function remove_admin_bar_links() {
 add_action( 'wp_before_admin_bar_render', 'remove_admin_bar_links' );
 
 
-/* Redirect admins to the dashboard and other users elsewhere */
+/* 
+    Redirect admins to the dashboard and other users elsewhere
+*/
 add_filter( 'login_redirect', 'my_login_redirect', 10, 3 );
 function my_login_redirect( $redirect_to, $request, $user ) {
     // Is there a user?
@@ -343,11 +388,59 @@ remove_action( 'wp_head', 'index_rel_link' );
 remove_action( 'wp_head', 'wp_shortlink_wp_head' );
 remove_action( 'wp_head', 'adjacent_posts_rel_link' );
 
-/* Remove Admin bar */
+
+/**
+ * Disable Emoji Mess
+ */
+ 
+function disable_wp_emojicons() {
+    remove_action( 'admin_print_styles', 'print_emoji_styles' );
+    remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
+    remove_action( 'admin_print_scripts', 'print_emoji_detection_script' );
+    remove_action( 'wp_print_styles', 'print_emoji_styles' );
+    remove_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
+    remove_filter( 'the_content_feed', 'wp_staticize_emoji' );
+    remove_filter( 'comment_text_rss', 'wp_staticize_emoji' );
+    add_filter( 'tiny_mce_plugins', 'disable_emojicons_tinymce' );
+    add_filter( 'emoji_svg_url', '__return_false' );
+}
+add_action( 'init', 'disable_wp_emojicons' );
+
+function disable_emojicons_tinymce( $plugins ) {
+    return is_array( $plugins ) ? array_diff( $plugins, array( 'wpemoji' ) ) : array();
+}
+
+
+/** 
+ * Disable JSON Rest API  
+ */
+
+add_filter('json_enabled', '__return_false');
+add_filter('json_jsonp_enabled', '__return_false');
+
+/**
+ * PHP Logger
+ */
+
+function php_logger( $data ) {
+    $output = $data;
+    if ( is_array( $output ) )
+        $output = implode( ',', $output);
+    // print the result into the JavaScript console
+    echo "<script>console.log( 'PHP LOG: " . $output . "' );</script>";
+}
+
+
+/* 
+    Remove Admin bar
+*/
+
 //show_admin_bar(false);
 
 
-/* GA */
+/* 
+    Google Analytics
+*/
 add_action('wp_footer', 'ga');
 function ga() { ?>
 <?php }

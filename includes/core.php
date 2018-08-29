@@ -430,6 +430,50 @@ function php_logger( $data ) {
     echo "<script>console.log( 'PHP LOG: " . $output . "' );</script>";
 }
 
+/*
+    Get content via cUrl
+*/
+
+function url_get_contents ($Url) {
+    if (!function_exists('curl_init')){ 
+        die();
+    }
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $Url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $output = curl_exec($ch);
+    curl_close($ch);
+    return $output;
+}
+
+/*
+    Verify reCaptcha
+*/
+
+function verifyCaptcha($secret,$response){
+    //Habilitado para SSL
+    $data = array(
+        'secret' => $secret,
+        'response' => $response
+    );
+
+    $verify = curl_init();
+    curl_setopt($verify, CURLOPT_URL, "https://www.google.com/recaptcha/api/siteverify");
+    curl_setopt($verify, CURLOPT_POST, true);
+    curl_setopt($verify, CURLOPT_POSTFIELDS, http_build_query($data));
+    curl_setopt($verify, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($verify, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($verify);
+
+    $captcha_success=json_decode($response);
+
+    if ($captcha_success->success==true) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 
 /* 
     Remove Admin bar

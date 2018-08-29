@@ -1,30 +1,6 @@
 <?php
 
 /* 
-    Add jQuery
-*/
-function agregar_js() {
-	if (!is_admin()) {
-		wp_deregister_script('jquery');
-		wp_register_script('jquery', 'https://code.jquery.com/jquery-3.2.1.min.js');
-		wp_enqueue_script('jquery');
-	}
-}
-add_action('wp_enqueue_scripts', 'agregar_js');
-
-
-/* 
-    Enqueue Scripts
-*/
-function foot_js(){
-        echo '
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-        ';
-}
-add_action('wp_footer', 'foot_js'); 
-
-
-/* 
     fix for browsers
 */
 function wpfme_IEhtml5_shim () {
@@ -65,7 +41,7 @@ add_action('admin_menu', 'disable_default_dashboard_widgets');
 
 /* 
     Remove wp tag in header *
-
+*/
 remove_action('wp_head', 'wp_generator');
 
 
@@ -76,6 +52,7 @@ function remove_menus () {
     global $menu;
 	$restricted = array(
         __('Links'),
+        __('Comments'),
 	);  
 	end ($menu);
 	while (prev($menu)){
@@ -116,7 +93,7 @@ function my_excerpt($length = 55) {
     Excerpt::length($length);
 }
 
-//conteo de vistas
+//Counts Visits on Post
 function getPostViews($postID){
     $count_key = '_views';
     $count = get_post_meta($postID, $count_key, true);
@@ -149,7 +126,7 @@ function posts_column_views($defaults){
     return $defaults;
 }
 function posts_custom_column_views($column_name, $id){
-  if($column_name === 'ec_views'){
+  if($column_name === 'views'){
     echo getPostViews(get_the_ID());
   }
 }
@@ -291,13 +268,6 @@ function my_image($postid=0, $size='thumbnail') { //it can be thumbnail or full
 
 
 /* 
-    Add image sizes and post thumbnail
-*/
-add_theme_support('post-thumbnails', array('post','page'));
-//add_image_size('customsize', 650, 260, true);
-
-
-/* 
     Add images in feed rss
 */
 function rss_add_enclosure() {
@@ -323,20 +293,6 @@ add_filter('wp_mail_from_name', 'res_fromname');
 
 
 
-
-
-/* 
-    Custom nav menu
-*/
-function register_my_menus() {
-  register_nav_menus(
-    array(
-      'menu' => 'Menu Principal',
-    )
-  );
-}
-add_theme_support( 'menus' );
-add_action( 'init', 'register_my_menus' );
 
 /* 
     remove wordpress logo and menu admin bar
@@ -366,7 +322,6 @@ function my_login_redirect( $redirect_to, $request, $user ) {
             return home_url( '/wp-admin/' );
         else
             return home_url();
-            // return get_permalink( 83 );
     }
 }
 
@@ -422,7 +377,7 @@ add_filter('json_jsonp_enabled', '__return_false');
  * PHP Logger
  */
 
-function php_logger( $data ) {
+function php_log( $data ) {
     $output = $data;
     if ( is_array( $output ) )
         $output = implode( ',', $output);
@@ -478,14 +433,3 @@ function verifyCaptcha($secret,$response){
 /* 
     Remove Admin bar
 */
-
-//show_admin_bar(false);
-
-
-/* 
-    Google Analytics
-*/
-add_action('wp_footer', 'ga');
-function ga() { ?>
-<?php }
-?>

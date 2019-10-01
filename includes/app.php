@@ -1,38 +1,34 @@
 <?php
 
-/*
-Site config
-*/
- 
-function nombreSitio() {
-    return 'Nombre Sitio';
-}
-function emailNotificaciones() {
-    return 'mail@domain.com';
-}
-
-/* 
-Add jQuery
-*/
-function agregar_js() {
-	if (!is_admin()) {
-		wp_deregister_script('jquery');
-		wp_register_script('jquery', 'https://code.jquery.com/jquery-3.2.1.min.js');
-		wp_enqueue_script('jquery');
-	}
-}
-add_action('wp_enqueue_scripts', 'agregar_js');
+//Related config and functions of the Website
 
 
-/* 
-Enqueue Scripts
-*/
-function foot_js(){
-        echo '
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-        ';
+
+function add_scripts(){
+    //Add Global CSS
+    wp_enqueue_style('bootstrap', get_template_directory_uri() . "/assets/vendor/bootstrap/css/bootstrap.min.css");
+
+    //Add jQuery
+    if (!is_admin()){
+        wp_deregister_script('jquery');
+        wp_register_script('jquery', get_template_directory_uri() . '/assets/vendor/jquery/jquery.min.js');
+        wp_enqueue_script('jquery');
+    }
+
+    wp_enqueue_script('validator-js', get_template_directory_uri() . "/src/vendor/validator/validator.js");
+    wp_enqueue_script('popper-js', get_template_directory_uri() . "/src/vendor/popper/popper.min.js");
+    wp_enqueue_script('bootstrap-js', get_template_directory_uri() . "/src/vendor/bootstrap/js/bootstrap.min.js");
+
+    wp_enqueue_script('app-js', get_template_directory_uri() . "/src/js/app.js");
+
+    wp_enqueue_style('app', get_template_directory_uri() . "/src/css/style.css?");
+
+    $paramsLogin = array(
+        'ajaxurl' => admin_url('admin-ajax.php'),
+    );
+    wp_localize_script('app-js','jsvar',$paramsLogin);
 }
-add_action('wp_footer', 'foot_js'); 
+add_action( 'wp_enqueue_scripts', 'add_scripts' );
 
 /*
 Add images sizes
@@ -58,19 +54,24 @@ function register_my_menus() {
 add_theme_support( 'menus' );
 add_action( 'init', 'register_my_menus' );
 
-/*
-	Function to facility emails notifications in WP
-*/
+/**
+ * Send Templated notifications
+ *
+ * @param [string] $subject The main subject line
+ * @param [string] $content The content in HTML formated
+ * @param [string] $email
+ * @return boolean
+ */
 function sendNotification($subject,$content,$email){
-	$thebody = '<!doctype html><html> <head> <meta name="viewport" content="width=device-width"> <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> <title>{{subject}}</title> <style media="all" type="text/css"> @media all{.btn-primary table td:hover{background-color: #34495e !important;}.btn-primary a:hover{background-color: #34495e !important; border-color: #34495e !important;}}@media all{.btn-secondary a:hover{border-color: #34495e !important; color: #34495e !important;}}@media only screen and (max-width: 620px){table[class=body] h1{font-size: 28px !important; margin-bottom: 10px !important;}table[class=body] h2{font-size: 22px !important; margin-bottom: 10px !important;}table[class=body] h3{font-size: 16px !important; margin-bottom: 10px !important;}table[class=body] p, table[class=body] ul, table[class=body] ol, table[class=body] td, table[class=body] span, table[class=body] a{font-size: 16px !important;}table[class=body] .wrapper, table[class=body] .article{padding: 10px !important;}table[class=body] .content{padding: 0 !important;}table[class=body] .container{padding: 0 !important; width: 100% !important;}table[class=body] .header{margin-bottom: 10px !important;}table[class=body] .main{border-left-width: 0 !important; border-radius: 0 !important; border-right-width: 0 !important;}table[class=body] .btn table{width: 100% !important;}table[class=body] .btn a{width: 100% !important;}table[class=body] .img-responsive{height: auto !important; max-width: 100% !important; width: auto !important;}table[class=body] .alert td{border-radius: 0 !important; padding: 10px !important;}table[class=body] .span-2, table[class=body] .span-3{max-width: none !important; width: 100% !important;}table[class=body] .receipt{width: 100% !important;}}@media all{.ExternalClass{width: 100%;}.ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div{line-height: 100%;}.apple-link a{color: inherit !important; font-family: inherit !important; font-size: inherit !important; font-weight: inherit !important; line-height: inherit !important; text-decoration: none !important;}}</style> </head> <body class="" style="font-family: sans-serif; -webkit-font-smoothing: antialiased; font-size: 14px; line-height: 1.4; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; background-color: #f6f6f6; margin: 0; padding: 0;"> <table border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background-color: #f6f6f6;" width="100%" bgcolor="#f6f6f6"> <tr> <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">&nbsp;</td><td class="container" style="font-family: sans-serif; font-size: 14px; vertical-align: top; display: block; Margin: 0 auto !important; max-width: 580px; padding: 10px; width: 580px;" width="580" valign="top"> <div class="content" style="box-sizing: border-box; display: block; Margin: 0 auto; max-width: 580px; padding: 10px;"> <span class="preheader" style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;"></span> <table class="main" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background: #fff; border-radius: 3px;" width="100%"> <tr> <td class="wrapper" style="font-family: sans-serif; font-size: 14px; vertical-align: top; box-sizing: border-box; padding: 20px;" valign="top"> <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;" width="100%"> <tr> <td style="font-family: sans-serif; font-size: 16px; vertical-align: top;" valign="top"></td></tr><tr> <td height="30"></td></tr><tr> <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top"> <p style="font-family: sans-serif; font-size: 16px; font-weight: bold; margin: 0; Margin-bottom: 15px;">{{subject}}</p><br>{{content}}</td></tr></table> </td></tr></table> <div class="footer" style="clear: both; padding-top: 10px; text-align: center; width: 100%;"> <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;" width="100%"> <tr> <td class="content-block" style="font-family: sans-serif; vertical-align: top; padding-top: 10px; padding-bottom: 10px; font-size: 12px; color: #999999; text-align: center;" valign="top" align="center"> <span class="apple-link" style="color: #999999; font-size: 12px; text-align: center;">{{sitename}}</span> </td></tr></table> </div></div></td><td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">&nbsp;</td></tr></table> </body></html>';
+	$thebody = $GLOBALS['emailtemplate'];
 
     $tpl = str_replace('{{content}}', $content, $thebody);
     $tpl = str_replace('{{subject}}', $subject, $tpl);
 
     $headers  = 'MIME-Version: 1.0' . "\r\n";
     $headers .= 'Content-type: text/html; charset=utf-8' . "\r\n";
-    $headers .= 'From: '.nombreSitio().' <'.emailNotificaciones().'>' . "\r\n" .
-    'Reply-To: ' .emailNotificaciones() . "\r\n" .
+    $headers .= 'From: '.get_bloginfo('name').' <'.$GLOBALS['notificationmail'].'>' . "\r\n" .
+    'Reply-To: ' .$GLOBALS['notificationmail'] . "\r\n" .
     'X-Mailer: PHP/' . phpversion();
     
     $sent = wp_mail($email, $subject, $tpl, $headers);
@@ -81,10 +82,25 @@ function sendNotification($subject,$content,$email){
     }  
 }
 
-/* 
-Google Analytics
-*/
-add_action('wp_footer', 'ga');
-function ga() { ?>
+
+
+/**
+ *
+ * Function that enqueue custom login style
+ *
+ */
+function my_login_stylesheet() {
+    wp_enqueue_style( 'custom-login', get_stylesheet_directory_uri() . '/assets/css/login.css' );
+}
+add_action( 'login_enqueue_scripts', 'my_login_stylesheet');
+
+
+
+
+/**
+ *  Load Footer scripts
+ */
+add_action('wp_footer', 'footerScripts');
+function footerScripts() { ?>
 <?php }
 ?>

@@ -1,19 +1,8 @@
 <?php
 
-/* 
-    fix for browsers
-*/
-function wpfme_IEhtml5_shim () {
-    global $is_IE;
-    if ($is_IE)
-    echo '<!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script><![endif]-->';
-    echo '<!--[if (gte IE 6)&(lte IE 8)]><script src="//cdnjs.cloudflare.com/ajax/libs/selectivizr/1.0.2/selectivizr-min.js"></script><![endif]-->';
-}
-add_action('wp_head', 'wpfme_IEhtml5_shim');
-
 
 /*
-    Hide WordPress Update Nag to All But Admins
+* Hide WordPress Update Nag to All But Admins
 */
 function hide_update_notice_to_all_but_admin() {
     if ( !current_user_can( 'update_core' ) ) {
@@ -24,7 +13,7 @@ add_action( 'admin_head', 'hide_update_notice_to_all_but_admin', 1 );
 
 
 /* 
-    Cleaner Dashboard
+* Cleaner Dashboard
 */
 function disable_default_dashboard_widgets() {
 	remove_meta_box('dashboard_recent_comments', 'dashboard', 'core');
@@ -40,13 +29,13 @@ add_action('admin_menu', 'disable_default_dashboard_widgets');
 
 
 /* 
-    Remove wp tag in header *
+* Remove wp tag in header *
 */
 remove_action('wp_head', 'wp_generator');
 
 
 /* 
-    Remove links in menu
+* Remove links in menu
 */
 function remove_menus () {
     global $menu;
@@ -63,9 +52,9 @@ function remove_menus () {
 add_action('admin_menu', 'remove_menus');
 
 
-/* 
-    Custom Excerpt
-*/
+/**
+ * Class Excerpt
+ */
 class Excerpt {
     public static $length = 55;// Default length (by WordPress)
     public static $types = array(// So you can call: my_excerpt('short');
@@ -89,52 +78,24 @@ class Excerpt {
     }
 }
 
+
+/**
+ * Customized Excerpt
+ *
+ * @param integer $length The amount of words
+ * @return string The excerpt modified
+ */
 function my_excerpt($length = 55) {
     Excerpt::length($length);
 }
 
-//Counts Visits on Post
-function getPostViews($postID){
-    $count_key = '_views';
-    $count = get_post_meta($postID, $count_key, true);
-    if($count==''){
-        delete_post_meta($postID, $count_key);
-        add_post_meta($postID, $count_key, '0');
-        return "0";
-    }
-    return ' ('.$count.')';
-}
 
-function setPostViews($postID) {
-    $count_key = '_views';
-    $count = get_post_meta($postID, $count_key, true);
-    if($count==''){
-        $count = 0;
-        delete_post_meta($postID, $count_key);
-        add_post_meta($postID, $count_key, '0');
-    } else{
-        $count++;
-        update_post_meta($postID, $count_key, $count);
-    }
-}
-
-// Add it to a column in WP-Admin
-add_filter('manage_posts_columns', 'posts_column_views');
-add_action('manage_posts_custom_column', 'posts_custom_column_views',5,2);
-function posts_column_views($defaults){
-    $defaults['_views'] = 'Vistas';
-    return $defaults;
-}
-function posts_custom_column_views($column_name, $id){
-  if($column_name === 'views'){
-    echo getPostViews(get_the_ID());
-  }
-}
-
-
-/* 
-    Pagination Boostrap
-*/
+/**
+ * Bootstrap Pagination
+ *
+ * @param array $args
+ * @return string
+ */
 function wp_bootstrap_pagination( $args = array() ) {
     $defaults = array(
         'range'           => 4,
@@ -215,7 +176,7 @@ function wp_bootstrap_pagination( $args = array() ) {
 
 
 /* 
-    Remove pages from searc
+* Remove pages from searc
 */
 function remove_pages_from_search() {
     global $wp_post_types;
@@ -225,7 +186,7 @@ add_action('init', 'remove_pages_from_search');
 
 
 /* 
-    Force medium size image to crop
+ * Force medium size image to crop
 */
 if(false === get_option('medium_crop')) {
     add_option('medium_crop', '1');
@@ -235,7 +196,7 @@ if(false === get_option('medium_crop')) {
 
 
 /* 
-    Funtion to call images in a post
+ * Funtion to call images in a post
 */
 function my_image($postid=0, $size='thumbnail') { //it can be thumbnail or full
     if ($postid<1){
@@ -268,7 +229,7 @@ function my_image($postid=0, $size='thumbnail') { //it can be thumbnail or full
 
 
 /* 
-    Add images in feed rss
+ * Add images in feed rss
 */
 function rss_add_enclosure() {
     global $post;
@@ -295,7 +256,7 @@ add_filter('wp_mail_from_name', 'res_fromname');
 
 
 /* 
-    remove wordpress logo and menu admin bar
+ * Remove wordpress logo and menu admin bar
 */
 function remove_admin_bar_links() {
     global $wp_admin_bar;
@@ -311,7 +272,7 @@ add_action( 'wp_before_admin_bar_render', 'remove_admin_bar_links' );
 
 
 /* 
-    Redirect admins to the dashboard and other users elsewhere
+ * Redirect admins to the dashboard and other users elsewhere
 */
 add_filter( 'login_redirect', 'my_login_redirect', 10, 3 );
 function my_login_redirect( $redirect_to, $request, $user ) {
